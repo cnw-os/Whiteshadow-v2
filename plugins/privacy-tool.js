@@ -296,32 +296,45 @@ async (conn, mek, m, { from, l, quoted, body, isCmd, command, args, q, isGroup, 
         l(e);
     }
 });
+
 cmd({
-    pattern: "getpp",
-    desc: "Fetch the profile picture of a tagged or replied user.",
-    category: "owner",
-    filename: __filename
-}, async (conn, mek, m, { quoted, isGroup, sender, participants, reply }) => {
-    try {
-        // Determine the target user
-        const targetJid = quoted ? quoted.sender : sender;
+  pattern: "getpp",
+  desc: "Fetch profile picture from reply, mention, or number.",
+  category: "owner",
+  filename: __filename
+}, async (conn, m, msg, { quoted, isGroup, reply, participants }) => {
+  try {
+    let targetJid;
 
-        if (!targetJid) return reply("⚠️ Please reply to a message to fetch the profile picture.");
-
-        // Fetch the user's profile picture URL
-        const userPicUrl = await conn.profilePictureUrl(targetJid, "image").catch(() => null);
-
-        if (!userPicUrl) return reply("⚠️ No profile picture found for the specified user.");
-
-        // Send the user's profile picture
-        await conn.sendMessage(m.chat, {
-            image: { url: userPicUrl },
-            caption: "🖼️ Here is the profile picture of the specified user."
-        });
-    } catch (e) {
-        console.error("Error fetching user profile picture:", e);
-        reply("❌ An error occurred while fetching the profile picture. Please try again later.");
+    if (quoted) {
+      targetJid = quoted.sender;
+    } else if (msg.mentionedJid && msg.mentionedJid.length > 0) {
+      targetJid = msg.mentionedJid[0];
+    } else if (msg.text) {
+      const number = msg.text.replace(/[^0-9]/g, "");
+      if (!number) return reply("🔢 Provide a valid number or reply to a message.");
+      targetJid = number + "@s.whatsapp.net";
+    } else {
+      targetJid = m.sender;
     }
-});
 
+    const ppUrl = await conn.profilePictureUrl(targetJid, "image").catch(() => null);
+    if (!ppUrl) return reply("🖼️ Couldn't fetch profile picture!");
+
+    let name = targetJid.split("@")[0];
+    try {
+      const contact = await conn.onWhatsApp(targetJid);
+      name = contact?.[0]?.notify || contact?.[0]?.vname || name;
+    } catch {}
+
+    await conn.sendMessage(m.chat, {
+      image: { url: ppUrl },
+      caption: `👤 Profile picture of @${name}`
+    }, { quoted: m, mentions: [targetJid] });
+
+  } catch (e) {
+    console.error("⚠️ getpp error:", e);
+    reply("❌ Error fetching profile picture. Try again.");
+  }
+});
           
