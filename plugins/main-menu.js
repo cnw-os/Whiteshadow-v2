@@ -49,6 +49,7 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
 ┃◈┃• 📹 ytmp4
 ┃◈┃• 🎶 song
 ┃◈┃• 🎬 darama
+┃◈┃• 📽️ movie2
 ┃◈┃• ☁️ gdrive
 ┃◈┃• 🌐 ssweb
 ┃◈┃• 🎵 tiks
@@ -240,7 +241,7 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
 ╭━━〔 🤖 *AI MENU* 〕━━┈⊷
 ┃◈╭─────────────────·๏
 ┃◈┃• 🧠 ai
-┃◈┃• 🤖 gpt3
+┃◈┃• 🤖 ai2
 ┃◈┃• 🤖 gpt2
 ┃◈┃• 🤖 gptmini
 ┃◈┃• 🤖 gpt
